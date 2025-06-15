@@ -1,26 +1,26 @@
-# Use Go base image
+# Goのベースイメージを使用
 FROM golang:1.21-alpine
 
-# Install required packages
+# 必要なパッケージをインストール
 RUN apk add --no-cache alsa-utils ca-certificates wget
 
-# Set working directory
+# 作業ディレクトリを設定
 WORKDIR /app
 
-# Copy backend files
+# バックエンドファイルをコピー
 COPY backend/ ./
 
-# Copy frontend files
+# フロントエンドファイルをコピー
 COPY frontend/ ./frontend/
 
-# Initialize go module if not exists
+# goモジュールを初期化（存在しない場合）
 RUN if [ ! -f go.mod ]; then go mod init voicevox-timebell; fi
 
-# Build the application
+# アプリケーションをビルド
 RUN go build -o server .
 
-# Expose port
+# ポートを公開
 EXPOSE 8080
 
-# Run the application
+# アプリケーションを実行
 CMD ["./server"]
