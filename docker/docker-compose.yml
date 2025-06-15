@@ -1,0 +1,22 @@
+services:
+  voicevox-engine:
+    image: voicevox/voicevox_engine:cpu-latest
+    container_name: voicevox-engine
+    ports:
+      - "50021:50021"
+    restart: unless-stopped
+    environment:
+      - VV_CPU_NUM_THREADS=2
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: voicevox-timebell
+    ports:
+      - "8080:8080"
+    depends_on:
+      - voicevox-engine
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Tokyo
