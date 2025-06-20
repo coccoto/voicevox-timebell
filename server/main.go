@@ -11,6 +11,11 @@ import (
 
 func main() {
 	http.HandleFunc("/start", startHandler)
+	// HTTP Server
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		return
+	}
 }
 
 func startHandler(w http.ResponseWriter, r *http.Request) {
@@ -25,8 +30,8 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	// Step 3: 音声データを /app/storage/voice.wav に保存する
-	err = saveAudioFile(audioData)
+	// Step 3: 音声データを /app/storage に保存する
+	err = saveAudioFile(audioData, "/app/storage")
 	if err != nil {
 		return
 	}
@@ -69,12 +74,13 @@ func requeStsynthesis(audioQuery []byte, speaker int) ([]byte, error) {
 	return io.ReadAll(response.Body)
 }
 
-func saveAudioFile(data []byte) error {
-	err := os.MkdirAll("/app/storage", 0777)
+func saveAudioFile(data []byte, dirPath string) error {
+	err := os.MkdirAll(dirPath, 0777)
 	if err != nil {
 		return err
 	}
-	err := os.WriteFile("/app/storage/voice.wav", data, 0777)
+	filePath := dirPath + "/voice.wav"
+	err = os.WriteFile(filePath, data, 0777)
 	if err != nil {
 		return err
 	}
