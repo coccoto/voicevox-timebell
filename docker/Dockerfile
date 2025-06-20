@@ -4,8 +4,8 @@ FROM golang:1.21-alpine
 # 必要なパッケージをインストール
 RUN apk add --no-cache alsa-utils pulseaudio-utils ffmpeg ca-certificates wget
 
-# audioグループを作成し、非rootユーザーを追加
-RUN addgroup -g 29 audio && adduser -D -u 1000 appuser && adduser appuser audio
+# 非rootユーザーを作成し、audioグループに追加
+RUN adduser -D -u 1000 appuser && adduser appuser audio
 
 # 作業ディレクトリを設定
 WORKDIR /app
