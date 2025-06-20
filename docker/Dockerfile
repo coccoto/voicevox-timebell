@@ -2,7 +2,7 @@
 FROM golang:1.21-alpine
 
 # 必要なパッケージをインストール
-RUN apk add --no-cache alsa-utils pulseaudio-utils ffmpeg ca-certificates wget
+RUN apk add --no-cache alsa-utils pulseaudio-utils ffmpeg mpv ca-certificates wget
 
 # 非rootユーザーを作成し、audioグループに追加
 RUN adduser -D -u 1000 appuser && adduser appuser audio

@@ -20,8 +20,11 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Asia/Tokyo
+      - PULSE_RUNTIME_PATH=/run/user/1000/pulse
     volumes:
       - /dev/snd:/dev/snd:rw
+      - /run/user/1000/pulse:/run/user/1000/pulse:rw
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
     devices:
       - /dev/snd
     group_add:

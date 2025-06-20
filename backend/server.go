@@ -298,12 +298,16 @@ func (app *App) saveResponseToFile(body io.Reader, filename string) error {
 
 // playAudio は複数の方法で音声ファイルを再生を試みます
 func (app *App) playAudio(filename string) error {
-	// 試す音声再生コマンドのリスト
+	// デバッグ情報を出力
+	app.logAudioDebugInfo()
+
+	// 試す音声再生コマンドのリスト（より確実な順序）
 	commands := [][]string{
-		{"aplay", filename},                    // ALSA
-		{"paplay", filename},                   // PulseAudio
-		{"ffplay", "-nodisp", "-autoexit", filename}, // FFmpeg
-		{"mpv", "--no-video", "--quiet", filename},   // mpv
+		{"ffmpeg", "-i", filename, "-f", "alsa", "default"},     // FFmpeg with ALSA
+		{"mpv", "--no-video", "--quiet", "--ao=alsa", filename}, // mpv with ALSA
+		{"aplay", filename},                                     // ALSA直接
+		{"paplay", filename},                                    // PulseAudio
+		{"ffplay", "-nodisp", "-autoexit", filename},           // FFmpeg player
 	}
 
 	for _, cmd := range commands {
@@ -332,4 +336,22 @@ func (app *App) tryPlayCommand(cmdArgs []string) bool {
 	}
 
 	return true
+}
+
+// logAudioDebugInfo は音声デバッグ情報をログに出力します
+func (app *App) logAudioDebugInfo() {
+	// ALSAデバイス情報
+	if output, err := exec.Command("ls", "-la", "/dev/snd/").CombinedOutput(); err == nil {
+		log.Printf("ALSA devices: %s", string(output))
+	}
+
+	// 利用可能なオーディオカード
+	if output, err := exec.Command("cat", "/proc/asound/cards").CombinedOutput(); err == nil {
+		log.Printf("Audio cards: %s", string(output))
+	}
+
+	// ユーザーID確認
+	if output, err := exec.Command("id").CombinedOutput(); err == nil {
+		log.Printf("User info: %s", string(output))
+	}
 }
