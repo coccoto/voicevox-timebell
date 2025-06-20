@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 )
 
 func main() {
@@ -23,23 +24,26 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 	// Step 1: audio_query API
 	audioQuery, err := requestAudioQuery(speechMessage, 1)
 	if err != nil {
-		http.Error(w, "Failed to requestAudioQuery", http.StatusInternalServerError)
+		http.Error(w, "Failed to requestAudioQuery.", http.StatusInternalServerError)
 		return
 	}
 	// Step 2: synthesis API
 	audioData, err := requeStsynthesis(audioQuery, 1)
 	if err != nil {
-		http.Error(w, "Failed to requeStsynthesis", http.StatusInternalServerError)
+		http.Error(w, "Failed to requeStsynthesis.", http.StatusInternalServerError)
 		return
 	}
 	// Step 3: 音声データを /app/storage に保存する
 	err = saveAudioFile(audioData, "/app/storage")
 	if err != nil {
-		http.Error(w, "Failed to saveAudioFile", http.StatusInternalServerError)
+		http.Error(w, "Failed to saveAudioFile.", http.StatusInternalServerError)
 		return
 	}
 	// Step 4: 音声ファイルを再生する
-
+	err = playAudioFile("/app/storage/voice.wav")
+	if err != nil {
+		fmt.println("Failed to playAudioFile. Error:", err)
+	}
 	// Step 5: 音声ファイルを削除する
 	err = os.Remove("/app/storage/voice.wav")
 	if err != nil {
@@ -85,6 +89,15 @@ func saveAudioFile(data []byte, dirPath string) error {
 	}
 	filePath := dirPath + "/voice.wav"
 	err = os.WriteFile(filePath, data, 0777)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func playAudioFile(filepath string) error {
+	cmd := exec.Command("aplay", filepath)
+	err := cmd.Run()
 	if err != nil {
 		return err
 	}
