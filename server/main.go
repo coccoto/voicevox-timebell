@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"time"
 )
 
 func main() {
@@ -20,7 +21,10 @@ func main() {
 }
 
 func startHandler(w http.ResponseWriter, r *http.Request) {
-	speechMessage := "５時になりました"
+	speechMessage := getSpeechMessage()
+	if speechMessage == "" {
+		return
+	}
 	// Step 1: audio_query API
 	audioQuery, err := requestAudioQuery(speechMessage, 1)
 	if err != nil {
@@ -42,7 +46,7 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 	// Step 4: 音声ファイルを再生する
 	err = playAudioFile("/app/storage/voice.wav")
 	if err != nil {
-		fmt.println("Failed to playAudioFile. Error:", err)
+		fmt.Println("Failed to playAudioFile. Error:", err)
 	}
 	// Step 5: 音声ファイルを削除する
 	err = os.Remove("/app/storage/voice.wav")
@@ -50,6 +54,18 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to delete voice.wav", http.StatusInternalServerError)
 		return
 	}
+}
+
+func getSpeechMessage() string {
+	// 現在時刻を取得
+	now := time.Now()
+	hour := now.Hour()
+	minute := now.Minute()
+
+	if minute == 0 {
+		return fmt.Sprintf("%d時になりました", hour)
+	}
+	return ""
 }
 
 func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
@@ -62,7 +78,7 @@ func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return nil, response.StatusCode
+		return nil, nil
 	}
 	return io.ReadAll(response.Body)
 }
@@ -77,7 +93,7 @@ func requeStsynthesis(audioQuery []byte, speaker int) ([]byte, error) {
 	defer response.Body.Close()
 	
 	if response.StatusCode != http.StatusOK {
-		return nil, response.StatusCode
+		return nil, nil
 	}
 	return io.ReadAll(response.Body)
 }
