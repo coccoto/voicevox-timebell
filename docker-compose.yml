@@ -1,0 +1,24 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./client:/usr/share/nginx/html:ro
+
+  voicevox-engine:
+    image: voicevox/voicevox_engine:cpu-latest
+    container_name: voicevox-engine
+    ports:
+      - "50021:50021"
+
+  voicevox-timebell:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    container_name: voicevox-timebell
+    ports:
+      - "8080:8080"
+    depends_on:
+      - voicevox-engine

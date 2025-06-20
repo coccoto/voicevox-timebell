@@ -1,35 +1,11 @@
-# Goのベースイメージを使用
-FROM golang:1.21-alpine
+FROM golang:1.24.4-bookworm
 
-# 必要なパッケージをインストール
-RUN apk add --no-cache alsa-utils pulseaudio-utils ffmpeg mpv ca-certificates wget
-
-# 非rootユーザーを作成し、audioグループに追加
-RUN adduser -D -u 1000 appuser && adduser appuser audio
-
-# 作業ディレクトリを設定
 WORKDIR /app
 
-# バックエンドファイルをコピー
-COPY backend/ ./
+COPY ./server /app/server
+COPY ./client /app/client
 
-# フロントエンドファイルをコピー
-COPY frontend/ ./frontend/
+RUN mkdir /app/dist
+RUN go build -C /app/server -o /app/dist/app .
 
-# goモジュールを初期化（存在しない場合）
-RUN if [ ! -f go.mod ]; then go mod init voicevox-timebell; fi
-
-# アプリケーションをビルド
-RUN go build -o server .
-
-# 実行権限を設定
-RUN chown appuser:appuser /app/server
-
-# 非rootユーザーに切り替え
-USER appuser
-
-# ポートを公開
-EXPOSE 8080
-
-# アプリケーションを実行
-CMD ["./server"]
+CMD ["/app/dist/app"]
