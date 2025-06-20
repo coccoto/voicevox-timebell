@@ -23,16 +23,19 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 	// Step 1: audio_query API
 	audioQuery, err := requestAudioQuery(speechMessage, 1)
 	if err != nil {
+		http.Error(w, "Failed to requestAudioQuery", http.StatusInternalServerError)
 		return
 	}
 	// Step 2: synthesis API
 	audioData, err := requeStsynthesis(audioQuery, 1)
 	if err != nil {
+		http.Error(w, "Failed to requeStsynthesis", http.StatusInternalServerError)
 		return
 	}
 	// Step 3: 音声データを /app/storage に保存する
 	err = saveAudioFile(audioData, "/app/storage")
 	if err != nil {
+		http.Error(w, "Failed to saveAudioFile", http.StatusInternalServerError)
 		return
 	}
 	// Step 4: 音声ファイルを再生する
@@ -40,6 +43,7 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 	// Step 5: 音声ファイルを削除する
 	err = os.Remove("/app/storage/voice.wav")
 	if err != nil {
+		http.Error(w, "Failed to delete voice.wav", http.StatusInternalServerError)
 		return
 	}
 }
@@ -54,7 +58,7 @@ func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return nil, nil
+		return nil, response.StatusCode
 	}
 	return io.ReadAll(response.Body)
 }
@@ -69,7 +73,7 @@ func requeStsynthesis(audioQuery []byte, speaker int) ([]byte, error) {
 	defer response.Body.Close()
 	
 	if response.StatusCode != http.StatusOK {
-		return nil, nil
+		return nil, response.StatusCode
 	}
 	return io.ReadAll(response.Body)
 }
