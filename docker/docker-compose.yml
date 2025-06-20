@@ -20,6 +20,13 @@ services:
     restart: unless-stopped
     environment:
       - TZ=Asia/Tokyo
+    volumes:
+      - /dev/snd:/dev/snd:rw
+    devices:
+      - /dev/snd
+    group_add:
+      - audio
+    privileged: true
 
 # VOICEVOXエンジンのサービス設定
 

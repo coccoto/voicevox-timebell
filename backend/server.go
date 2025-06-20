@@ -207,10 +207,9 @@ func (app *App) playVoice(speaker string, hour int) {
 		return
 	}
 
-	cmd := exec.Command("aplay", filename)
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Printf("Failed to play audio: %v, output: %s", err, string(output))
+	// 複数の音声再生方法を試す
+	if err := app.playAudio(filename); err != nil {
+		log.Printf("Failed to play audio: %v", err)
 	}
 
 	if err := os.Remove(filename); err != nil {
@@ -295,4 +294,42 @@ func (app *App) saveResponseToFile(body io.Reader, filename string) error {
 
 	_, err = io.Copy(file, body)
 	return err
+}
+
+// playAudio は複数の方法で音声ファイルを再生を試みます
+func (app *App) playAudio(filename string) error {
+	// 試す音声再生コマンドのリスト
+	commands := [][]string{
+		{"aplay", filename},                    // ALSA
+		{"paplay", filename},                   // PulseAudio
+		{"ffplay", "-nodisp", "-autoexit", filename}, // FFmpeg
+		{"mpv", "--no-video", "--quiet", filename},   // mpv
+	}
+
+	for _, cmd := range commands {
+		if app.tryPlayCommand(cmd) {
+			log.Printf("Successfully played audio using: %s", cmd[0])
+			return nil
+		}
+	}
+
+	return fmt.Errorf("all audio playback methods failed")
+}
+
+// tryPlayCommand は指定されたコマンドで音声再生を試みます
+func (app *App) tryPlayCommand(cmdArgs []string) bool {
+	// コマンドが存在するかチェック
+	if _, err := exec.LookPath(cmdArgs[0]); err != nil {
+		log.Printf("Command %s not found: %v", cmdArgs[0], err)
+		return false
+	}
+
+	cmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Printf("Failed to play with %s: %v, output: %s", cmdArgs[0], err, string(output))
+		return false
+	}
+
+	return true
 }
