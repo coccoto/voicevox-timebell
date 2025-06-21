@@ -11,11 +11,17 @@ import (
 	"time"
 )
 
+const (
+	STORAGE_PATH = "/app/storage"
+	VOICE_FILENAME = "voice.wav"
+)
+
 func main() {
 	http.HandleFunc("/start", startHandler)
 	// HTTP Server
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
+		fmt.Println("Failed to start server. Error:", err)
 		return
 	}
 }
@@ -23,35 +29,36 @@ func main() {
 func startHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("startHandler called")
 
+	// 音声メッセージを取得する
 	speechMessage := getSpeechMessage()
-	// Step 1: audio_query API
+	// request audio_query API
 	audioQuery, err := requestAudioQuery(speechMessage, 1)
 	if err != nil {
-		http.Error(w, "Failed to requestAudioQuery.", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to requestAudioQuery. Error: %v", err), http.StatusInternalServerError)
 		return
 	}
-	// Step 2: synthesis API
-	audioData, err := requeStsynthesis(audioQuery, 1)
+	// request synthesis API
+	audioData, err := requestSynthesis(audioQuery, 1)
 	if err != nil {
-		http.Error(w, "Failed to requeStsynthesis.", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to requestSynthesis. Error: %v", err), http.StatusInternalServerError)
 		return
 	}
-	// Step 3: 音声データを /app/storage に保存する
-	err = saveAudioFile(audioData, "/app/storage")
+	// 音声ファイルを STORAGE_PATH に保存する
+	err = saveAudioFile(audioData)
 	if err != nil {
-		http.Error(w, "Failed to saveAudioFile.", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to saveAudioFile. Error: %v", err), http.StatusInternalServerError)
 		return
 	}
-	// Step 4: 音声ファイルを再生する
-	err = playAudioFile("/app/storage/voice.wav")
+	// 音声ファイルを再生する
+	err = playAudioFile()
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Failed to playAudioFile. Error: %v", err))
-	}
-	// Step 5: 音声ファイルを削除する
-	err = os.Remove("/app/storage/voice.wav")
-	if err != nil {
-		http.Error(w, "Failed to delete voice.wav", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to playAudioFile. Error: %v", err), http.StatusInternalServerError)
 		return
+	}
+	// 音声ファイルを削除する
+	err = os.Remove(STORAGE_PATH + "/" + VOICE_FILENAME)
+	if err != nil {
+		fmt.Printf("Failed to remove voice.wav. Error: %v", err)
 	}
 	fmt.Println("startHandler completed")
 }
@@ -72,12 +79,12 @@ func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return nil, nil
+		return nil, fmt.Errorf("audio_query API returned status: %s", response.Status)
 	}
 	return io.ReadAll(response.Body)
 }
 
-func requeStsynthesis(audioQuery []byte, speaker int) ([]byte, error) {
+func requestSynthesis(audioQuery []byte, speaker int) ([]byte, error) {
 	requestUrl := fmt.Sprintf("http://voicevox-engine:50021/synthesis?speaker=%d", speaker)
 	// API Request
 	response, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(audioQuery))
@@ -92,24 +99,23 @@ func requeStsynthesis(audioQuery []byte, speaker int) ([]byte, error) {
 	return io.ReadAll(response.Body)
 }
 
-func saveAudioFile(data []byte, dirPath string) error {
-	err := os.MkdirAll(dirPath, 0777)
+func saveAudioFile(data []byte) error {
+	err := os.MkdirAll(STORAGE_PATH, 0777)
 	if err != nil {
 		return err
 	}
 	// 音声ファイルの保存先を指定する
-	filePath := dirPath + "/voice.wav"
-	err = os.WriteFile(filePath, data, 0777)
+	soundFilePath := STORAGE_PATH + "/" + VOICE_FILENAME
+	err = os.WriteFile(soundFilePath, data, 0777)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func playAudioFile(filepath string) error {
+func playAudioFile() error {
 	// USB キャプチャデバイス (card 1) から音声を出力する
-	cmd := exec.Command("aplay", "-D", "plughw:1,0", filepath)
-
+	cmd := exec.Command("aplay", "-D", "plughw:1,0", STORAGE_PATH + "/" + VOICE_FILENAME)
 	err := cmd.Run()
 	if err != nil {
 		return err
