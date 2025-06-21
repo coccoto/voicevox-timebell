@@ -114,6 +114,7 @@ func saveAudioFile(data []byte, dirPath string) error {
 }
 
 func playAudioFile(filepath string) error {
+	// USB キャプチャデバイス (card 1) から音声を出力する
 	cmd := exec.Command("aplay", "-D", "plughw:1,0", filepath)
 
 	err := cmd.Run()
