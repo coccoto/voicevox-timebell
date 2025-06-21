@@ -22,3 +22,6 @@ services:
       - "8080:8080"
     depends_on:
       - voicevox-engine
+
+    devices:
+      - "/dev/snd:/dev/snd"
