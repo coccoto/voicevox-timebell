@@ -18,13 +18,13 @@ const (
 )
 
 func alertHandler(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("{comment}")
+	fmt.Println("Processing alertHandler")
 
 	if err := processAlert(); err != nil {
-		sendErrorResponse(writer, http.StatusInternalServerError, fmt.Sprintf("{comment}", err))
+		sendErrorResponse(writer, http.StatusInternalServerError, fmt.Sprintf("Failed to process alert: %v", err))
 		return
 	}
-	sendSuccessResponse(writer, "{comment}")
+	sendSuccessResponse(writer, "Completed alertHandler")
 }
 
 func processAlert() error {
@@ -32,24 +32,24 @@ func processAlert() error {
 	
 	audioQuery, err := requestAudioQuery(speechMessage, 1)
 	if err != nil {
-		return fmt.Errorf("{comment}", err)
+		return fmt.Errorf("audio query failed: %w", err)
 	}
 
 	audioData, err := requestSynthesis(audioQuery, 1)
 	if err != nil {
-		return fmt.Errorf("{comment}", err)
+		return fmt.Errorf("synthesis failed: %w", err)
 	}
 
 	if err := saveAudioFile(audioData); err != nil {
-		return fmt.Errorf("{comment}", err)
+		return fmt.Errorf("save audio failed: %w", err)
 	}
 
 	if err := playAudioFile(); err != nil {
-		return fmt.Errorf("{comment}", err)
+		return fmt.Errorf("play audio failed: %w", err)
 	}
 
 	if err := cleanupAudioFile(); err != nil {
-		fmt.Println(fmt.Sprintf("{comment}", err))
+		fmt.Println("Warning: cleanup failed:", err)
 	}
 	return nil
 }
@@ -64,12 +64,12 @@ func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
 	
 	response, err := http.Post(requestUrl, "", nil)
 	if err != nil {
-		return nil, fmt.Errorf("{comment}", err)
+		return nil, fmt.Errorf("failed to make audio query request: %w", err)
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("{comment}", response.Status)
+		return nil, fmt.Errorf("audio query API returned status: %s", response.Status)
 	}
 	return io.ReadAll(response.Body)
 }
@@ -79,12 +79,12 @@ func requestSynthesis(audioQuery []byte, speaker int) ([]byte, error) {
 	
 	response, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(audioQuery))
 	if err != nil {
-		return nil, fmt.Errorf("{comment}", err)
+		return nil, fmt.Errorf("failed to make synthesis request: %w", err)
 	}
 	defer response.Body.Close()
 	
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("{comment}", response.Status)
+		return nil, fmt.Errorf("synthesis API returned status: %s", response.Status)
 	}
 	return io.ReadAll(response.Body)
 }
@@ -92,7 +92,7 @@ func requestSynthesis(audioQuery []byte, speaker int) ([]byte, error) {
 func saveAudioFile(data []byte) error {
 	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
 	if err := os.WriteFile(soundFilePath, data, 0644); err != nil {
-		return fmt.Errorf("{comment}", err)
+		return fmt.Errorf("failed to write audio file: %w", err)
 	}
 	return nil
 }
@@ -102,7 +102,7 @@ func playAudioFile() error {
 	cmd := exec.Command("aplay", "-D", "plughw:1,0", soundFilePath)
 	
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("{comment}", err)
+		return fmt.Errorf("failed to play audio file: %w", err)
 	}
 	return nil
 }
@@ -110,7 +110,7 @@ func playAudioFile() error {
 func cleanupAudioFile() error {
 	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
 	if err := os.Remove(soundFilePath); err != nil {
-		return fmt.Errorf("{comment}", err)
+		return fmt.Errorf("failed to remove audio file: %w", err)
 	}
 	return nil
 }

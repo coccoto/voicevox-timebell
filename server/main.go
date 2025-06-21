@@ -21,10 +21,10 @@ func setupRoutes() {
 }
 
 func listen() {
-	fmt.Println(fmt.Sprintf("{comment}"))
+	fmt.Println("Server listening on port", SERVER_PORT)
 
 	if err := http.ListenAndServe(SERVER_PORT, nil); err != nil {
-		fmt.Println(fmt.Sprintf("{comment}"))
+		fmt.Println("Failed to listen:", err)
 		os.Exit(1)
 	}
 }

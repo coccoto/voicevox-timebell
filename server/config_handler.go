@@ -10,11 +10,11 @@ import (
 )
 
 func configHandler(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("{comment}")
+	fmt.Println("Processing config request")
 
 	body, err := io.ReadAll(request.Body)
 	if err != nil {
-		sendErrorResponse(writer, http.StatusBadRequest, fmt.Sprintf("{comment}", err))
+		sendErrorResponse(writer, http.StatusBadRequest, fmt.Sprintf("Failed to read request body: %v", err))
 		return
 	}
 	defer request.Body.Close()
@@ -22,21 +22,21 @@ func configHandler(writer http.ResponseWriter, request *http.Request) {
 	// Validate JSON format
 	var config Config
 	if err := json.Unmarshal(body, &config); err != nil {
-		sendErrorResponse(writer, http.StatusBadRequest, fmt.Sprintf("{comment}", err))
+		sendErrorResponse(writer, http.StatusBadRequest, fmt.Sprintf("Invalid JSON format: %v", err))
 		return
 	}
 
 	if err := saveConfigFile(body); err != nil {
-		sendErrorResponse(writer, http.StatusInternalServerError, fmt.Sprintf("{comment}", err))
+		sendErrorResponse(writer, http.StatusInternalServerError, fmt.Sprintf("Failed to save config: %v", err))
 		return
 	}
-	sendSuccessResponse(writer, "{comment}")
+	sendSuccessResponse(writer, "Completed configHandler")
 }
 
 func saveConfigFile(data []byte) error {
 	configFilePath := filepath.Join(STORAGE_PATH, CONFIG_FILENAME)
 	if err := os.WriteFile(configFilePath, data, 0644); err != nil {
-		return fmt.Errorf("{comment}", err)
+		return fmt.Errorf("failed to write config file: %w", err)
 	}
 	return nil
 }
