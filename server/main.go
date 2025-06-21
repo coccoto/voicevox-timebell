@@ -114,9 +114,8 @@ func saveAudioFile(data []byte, dirPath string) error {
 }
 
 func playAudioFile(filepath string) error {
-	cmd := exec.Command("aplay", filepath)
+	cmd := exec.Command("aplay", "-D", "plughw:1,0", filepath)
 
-	// 標準出力と標準エラー出力をバッファに保存
 	var out bytes.Buffer
 	var stderr bytes.Buffer
 	cmd.Stdout = &out
@@ -126,6 +125,5 @@ func playAudioFile(filepath string) error {
 	if err != nil {
 		return fmt.Errorf("aplay failed: %v\nstdout: %s\nstderr: %s", err, out.String(), stderr.String())
 	}
-
 	return nil
 }

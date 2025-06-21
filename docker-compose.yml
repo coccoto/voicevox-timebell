@@ -24,3 +24,5 @@ services:
       - "/dev/snd:/dev/snd"
     depends_on:
       - voicevox-engine
+    environment:
+      - AUDIODEV=plughw:1,0
