@@ -116,9 +116,12 @@ func saveAudioFile(data []byte, dirPath string) error {
 func playAudioFile(filepath string) error {
 	cmd := exec.Command("paplay", filepath)
 
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	err := cmd.Run()
 	if err != nil {
-		return err
+		return fmt.Errorf("paplay failed: %v, stderr: %s", err, stderr.String())
 	}
 	return nil
 }
