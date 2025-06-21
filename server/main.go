@@ -94,7 +94,7 @@ func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
 		return nil, err
 	}
 	// volumeScaleを2.0に設定（音量を2倍にする）
-	audioQueryMap["volumeScale"] = 5.0
+	audioQueryMap["volumeScale"] = 10.0
 	
 	// JSONに戻す
 	modifiedAudioQuery, err := json.Marshal(audioQueryMap)
