@@ -21,6 +21,8 @@ func main() {
 }
 
 func startHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("startHandler")
+
 	speechMessage := getSpeechMessage()
 	if speechMessage == "" {
 		return
@@ -65,7 +67,7 @@ func getSpeechMessage() string {
 	if minute == 0 {
 		return fmt.Sprintf("%d時になりました", hour)
 	}
-	return ""
+	return "TEST"
 }
 
 func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
