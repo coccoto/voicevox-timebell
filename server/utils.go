@@ -8,6 +8,9 @@ import (
 const (
 	STORAGE_PATH = "/app/storage"
 	CONFIG_FILENAME = "config.json"
+	VOICE_FILENAME = "voice.wav"
+	VOICEVOX_API_URL = "http://voicevox-engine:50021"
+	AUDIO_DEVICE = "plughw:1,0"
 )
 
 func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {

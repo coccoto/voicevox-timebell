@@ -12,11 +12,6 @@ import (
 	"time"
 )
 
-const (
-	VOICE_FILENAME = "voice.wav"
-	VOICEVOX_API_URL = "http://voicevox-engine:50021"
-)
-
 func alertHandler(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("Processing alertHandler")
 
@@ -99,7 +94,7 @@ func saveAudioFile(data []byte) error {
 
 func playAudioFile() error {
 	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
-	cmd := exec.Command("aplay", "-D", "plughw:1,0", soundFilePath)
+	cmd := exec.Command("aplay", "-D", AUDIO_DEVICE, soundFilePath)
 	
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to play audio file: %w", err)
