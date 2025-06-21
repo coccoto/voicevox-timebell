@@ -6,11 +6,23 @@
     </head>
     <body>
         <div>
-            <div id='hourList'></div>
-            <select id='speakerList' onchange='assembleStyleList()'></select>
-            <select id='styleList'></select>
+            <h1>voicevox-timebell</h1>
             <div>
-                <button id='saveButton'>保存</button>
+                <h2>通知する時間</h2>
+                <div id='hourList'></div>
+            </div>
+            <div>
+                <h2>キャラクター選択</h2>
+                <select id='speakerList' onchange='assembleStyleList()'>
+                    <option value=''></option>
+                </select>
+            </div>
+            <div>
+                <h2>音声スタイル</h2>
+                <select id='styleList'></select>
+            </div>
+            <div>
+                <button onclick='onClickSaveButton()'>保存</button>
             </div>
         </div>
         <script src='script.js'></script>
