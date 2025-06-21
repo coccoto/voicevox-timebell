@@ -49,14 +49,14 @@ func processAlert() error {
 	}
 
 	if err := cleanupAudioFile(); err != nil {
-		fmt.println("{comment}")
+		fmt.Println("{comment}")
 	}
 	return nil
 }
 
 func getSpeechMessage() string {
 	hour := time.Now().Hour()
-	return hour + "時をお知らせします。"
+	return fmt.Sprintf("%d時をお知らせします。", hour)
 }
 
 func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {

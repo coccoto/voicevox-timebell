@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 func configHandler(writer http.ResponseWriter, request *http.Request) {
@@ -33,7 +35,7 @@ func configHandler(writer http.ResponseWriter, request *http.Request) {
 
 func saveConfigFile(data []byte) error {
 	configFilePath := filepath.Join(STORAGE_PATH, CONFIG_FILENAME)
-	if err := os.WriteFile(soundFilePath, data, 0644); err != nil {
+	if err := os.WriteFile(configFilePath, data, 0644); err != nil {
 		return fmt.Errorf("{comment}", err)
 	}
 	return nil

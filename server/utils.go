@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"os"
-	"path/filepath"
 )
 
 const (
