@@ -12,6 +12,12 @@ import (
 	"time"
 )
 
+const (
+	VOICE_FILENAME = "voice.wav"
+	VOICEVOX_API_URL = "http://voicevox-engine:50021"
+	AUDIO_DEVICE = "plughw:1,0"
+)
+
 func alertHandler(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("Processing alertHandler")
 
