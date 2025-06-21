@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json" // ← 追加
 	"fmt"
 	"io"
 	"net/http"
@@ -82,7 +83,26 @@ func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
 	if response.StatusCode != http.StatusOK {
 		return nil, nil
 	}
-	return io.ReadAll(response.Body)
+	// 音声クエリを読み込む
+	audioQuery, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	var audioQueryMap map[string]interface{}
+	err = json.Unmarshal(audioQuery, &audioQueryMap)
+	if err != nil {
+		return nil, err
+	}
+	// volumeScaleを2.0に設定（音量を2倍にする）
+	audioQueryMap["volumeScale"] = 2.0
+	
+	// JSONに戻す
+	modifiedAudioQuery, err := json.Marshal(audioQueryMap)
+	if err != nil {
+		return nil, err
+	}
+	
+	return modifiedAudioQuery, nil
 }
 
 func requeStsynthesis(audioQuery []byte, speaker int) ([]byte, error) {
