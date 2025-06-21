@@ -8,6 +8,7 @@ WORKDIR /app
 COPY ./server /app/server
 COPY ./client /app/client
 
+RUN mkdir -p /app/storage
 RUN go build -C /app/server -o /app/dist/app .
 
 CMD ["/app/dist/app"]

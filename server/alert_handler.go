@@ -51,7 +51,6 @@ func processAlert() error {
 	if err := cleanupAudioFile(); err != nil {
 		fmt.println("{comment}")
 	}
-
 	return nil
 }
 
@@ -72,7 +71,6 @@ func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
 	if response.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("{comment}", response.Status)
 	}
-
 	return io.ReadAll(response.Body)
 }
 
@@ -88,20 +86,14 @@ func requestSynthesis(audioQuery []byte, speaker int) ([]byte, error) {
 	if response.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("{comment}", response.Status)
 	}
-	
 	return io.ReadAll(response.Body)
 }
 
 func saveAudioFile(data []byte) error {
-	if err := makeStorageDirectory(); err != nil {
-		return fmt.Errorf("{comment}", err)
-	}
-	
 	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
 	if err := os.WriteFile(soundFilePath, data, 0644); err != nil {
 		return fmt.Errorf("{comment}", err)
 	}
-	
 	return nil
 }
 
@@ -112,7 +104,6 @@ func playAudioFile() error {
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("{comment}", err)
 	}
-	
 	return nil
 }
 

@@ -46,7 +46,3 @@ func sendSuccessResponse(writer http.ResponseWriter, message string) {
 	}
 	json.NewEncoder(writer).Encode(response)
 }
-
-func makeStorageDirectory() error {
-	return os.MkdirAll(STORAGE_PATH, 0755)
-}

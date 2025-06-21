@@ -28,19 +28,13 @@ func configHandler(writer http.ResponseWriter, request *http.Request) {
 		sendErrorResponse(writer, http.StatusInternalServerError, fmt.Sprintf("{comment}", err))
 		return
 	}
-
 	sendSuccessResponse(writer, "{comment}")
 }
 
 func saveConfigFile(data []byte) error {
-	if err := makeStorageDirectory(); err != nil {
-		return fmt.Errorf("{comment}", err)
-	}
-
 	configFilePath := filepath.Join(STORAGE_PATH, CONFIG_FILENAME)
 	if err := os.WriteFile(soundFilePath, data, 0644); err != nil {
 		return fmt.Errorf("{comment}", err)
 	}
-	
 	return nil
 }
