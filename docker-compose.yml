@@ -22,6 +22,8 @@ services:
       - "8080:8080"
     devices:
       - "/dev/snd:/dev/snd"
+    environment:
+      - TZ=Asia/Tokyo
     depends_on:
       - voicevox-engine
       
