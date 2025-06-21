@@ -49,7 +49,7 @@ func processAlert() error {
 	}
 
 	if err := cleanupAudioFile(); err != nil {
-		fmt.Println("{comment}")
+		fmt.Println(fmt.Sprintf("{comment}", err))
 	}
 	return nil
 }
@@ -109,5 +109,8 @@ func playAudioFile() error {
 
 func cleanupAudioFile() error {
 	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
-	return os.Remove(soundFilePath)
+	if err := os.Remove(soundFilePath); err != nil {
+		return fmt.Errorf("{comment}", err)
+	}
+	return nil
 }
