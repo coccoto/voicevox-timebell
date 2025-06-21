@@ -24,3 +24,8 @@ services:
       - "/dev/snd:/dev/snd"
     depends_on:
       - voicevox-engine
+    environment:
+      - PULSE_SERVER=unix:/tmp/pulse/native
+    volumes:
+      - /tmp/pulse/native:/tmp/pulse/native
+      - ~/.config/pulse/cookie:/root/.config/pulse/cookie
