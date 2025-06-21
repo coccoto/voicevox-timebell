@@ -114,7 +114,7 @@ func saveAudioFile(data []byte, dirPath string) error {
 }
 
 func playAudioFile(filepath string) error {
-	cmd := exec.Command("aplay", "-D", "plughw:1,0", filepath)
+	cmd := exec.Command("aplay", "-D", "plughw:0", filepath)
 
 	err := cmd.Run()
 	if err != nil {
