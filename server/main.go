@@ -45,7 +45,7 @@ func startHandler(w http.ResponseWriter, r *http.Request) {
 	// Step 4: 音声ファイルを再生する
 	err = playAudioFile("/app/storage/voice.wav")
 	if err != nil {
-		fmt.Println("Failed to playAudioFile. Error: " + err)
+		fmt.Println(fmt.Sprintf("Failed to playAudioFile. Error: %v", err))
 	}
 	// Step 5: 音声ファイルを削除する
 	err = os.Remove("/app/storage/voice.wav")
