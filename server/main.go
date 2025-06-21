@@ -2,12 +2,14 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 )
 
@@ -15,15 +17,31 @@ const (
 	STORAGE_PATH = "/app/storage"
 	VOICE_FILENAME = "voice.wav"
 	CONFIG_FILENAME = "config.json"
+	VOICEVOX_API_URL = "http://voicevox-engine:50021"
+	SERVER_PORT = ":8080"
+	AUDIO_DEVICE = "plughw:1,0"
 )
 
+// Config represents the timebell configuration
+type Config struct {
+	HourList []string `json:"hourList"`
+	StyleID  string   `json:"styleId"`
+}
+
+// APIResponse represents a standard API response
+type APIResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Error   string `json:"error,omitempty"`
+}
+
+// corsMiddleware handles CORS headers for all requests
 func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 		writer.Header().Set("Access-Control-Allow-Origin", "*")
 		writer.Header().Set("Access-Control-Allow-Methods", "*")
 		writer.Header().Set("Access-Control-Allow-Headers", "*")
 
-		// プリフライトリクエスト (OPTIONS)
 		if request.Method == http.MethodOptions {
 			writer.WriteHeader(http.StatusOK)
 			return
@@ -32,52 +50,83 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
+// sendErrorResponse sends a standardized error response
+func sendErrorResponse(writer http.ResponseWriter, statusCode int, message string) {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(statusCode)
+	response := APIResponse{
+		Status: "error",
+		Error:  message,
+	}
+	json.NewEncoder(writer).Encode(response)
+}
+
+// sendSuccessResponse sends a standardized success response
+func sendSuccessResponse(writer http.ResponseWriter, message string) {
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(http.StatusOK)
+	response := APIResponse{
+		Status:  "success",
+		Message: message,
+	}
+	json.NewEncoder(writer).Encode(response)
+}
+
 func main() {
+	setupRoutes()
+	startServer()
+}
+
+func setupRoutes() {
 	http.HandleFunc("/api/announce", corsMiddleware(announceHandler))
 	http.HandleFunc("/api/config", corsMiddleware(configHandler))
-	// HTTP Server
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		fmt.Println("Failed to start http server. Error:", err)
-		return
+}
+
+func startServer() {
+	fmt.Printf("Starting server on port %s\n", SERVER_PORT)
+	if err := http.ListenAndServe(SERVER_PORT, nil); err != nil {
+		fmt.Printf("Failed to start server: %v\n", err)
+		os.Exit(1)
 	}
 }
 
 func announceHandler(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("announceHandler called")
+	fmt.Println("Processing announce request")
 
-	// 音声メッセージを取得する
+	if err := processTimeAnnouncement(); err != nil {
+		sendErrorResponse(writer, http.StatusInternalServerError, fmt.Sprintf("Failed to process announcement: %v", err))
+		return
+	}
+
+	sendSuccessResponse(writer, "Time announcement completed successfully")
+}
+
+func processTimeAnnouncement() error {
 	speechMessage := getSpeechMessage()
-	// request audio_query API
+	
 	audioQuery, err := requestAudioQuery(speechMessage, 1)
 	if err != nil {
-		http.Error(writer, fmt.Sprintf("Failed to requestAudioQuery. Error: %v", err), http.StatusInternalServerError)
-		return
+		return fmt.Errorf("audio query failed: %w", err)
 	}
-	// request synthesis API
+
 	audioData, err := requestSynthesis(audioQuery, 1)
 	if err != nil {
-		http.Error(writer, fmt.Sprintf("Failed to requestSynthesis. Error: %v", err), http.StatusInternalServerError)
-		return
+		return fmt.Errorf("synthesis failed: %w", err)
 	}
-	// 音声ファイルを STORAGE_PATH に保存する
-	err = saveAudioFile(audioData)
-	if err != nil {
-		http.Error(writer, fmt.Sprintf("Failed to saveAudioFile. Error: %v", err), http.StatusInternalServerError)
-		return
+
+	if err := saveAudioFile(audioData); err != nil {
+		return fmt.Errorf("save audio failed: %w", err)
 	}
-	// 音声ファイルを再生する
-	err = playAudioFile()
-	if err != nil {
-		http.Error(writer, fmt.Sprintf("Failed to playAudioFile. Error: %v", err), http.StatusInternalServerError)
-		return
+
+	if err := playAudioFile(); err != nil {
+		return fmt.Errorf("play audio failed: %w", err)
 	}
-	// 音声ファイルを削除する
-	err = os.Remove(STORAGE_PATH + "/" + VOICE_FILENAME)
-	if err != nil {
-		fmt.Printf("Failed to remove voice.wav. Error: %v", err)
+
+	if err := cleanupAudioFile(); err != nil {
+		fmt.Printf("Warning: failed to cleanup audio file: %v\n", err)
 	}
-	fmt.Println("announceHandler completed")
+
+	return nil
 }
 
 func getSpeechMessage() string {
@@ -87,79 +136,105 @@ func getSpeechMessage() string {
 }
 
 func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
-	requestUrl := fmt.Sprintf("http://voicevox-engine:50021/audio_query?text=%s&speaker=%d", url.QueryEscape(speechMessage), speaker)
-	// API Request
+	requestUrl := fmt.Sprintf("%s/audio_query?text=%s&speaker=%d", 
+		VOICEVOX_API_URL, url.QueryEscape(speechMessage), speaker)
+	
 	response, err := http.Post(requestUrl, "", nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to make audio query request: %w", err)
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("audio_query API returned status: %s", response.Status)
+		return nil, fmt.Errorf("audio query API returned status: %s", response.Status)
 	}
+	
 	return io.ReadAll(response.Body)
 }
 
 func requestSynthesis(audioQuery []byte, speaker int) ([]byte, error) {
-	requestUrl := fmt.Sprintf("http://voicevox-engine:50021/synthesis?speaker=%d", speaker)
-	// API Request
+	requestUrl := fmt.Sprintf("%s/synthesis?speaker=%d", VOICEVOX_API_URL, speaker)
+	
 	response, err := http.Post(requestUrl, "application/json", bytes.NewBuffer(audioQuery))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to make synthesis request: %w", err)
 	}
 	defer response.Body.Close()
 	
 	if response.StatusCode != http.StatusOK {
-		return nil, nil
+		return nil, fmt.Errorf("synthesis API returned status: %s", response.Status)
 	}
+	
 	return io.ReadAll(response.Body)
 }
 
 func saveAudioFile(data []byte) error {
-	err := os.MkdirAll(STORAGE_PATH, 0777)
-	if err != nil {
-		return err
+	if err := ensureStorageDirectory(); err != nil {
+		return fmt.Errorf("failed to ensure storage directory: %w", err)
 	}
-	soundFilePath := STORAGE_PATH + "/" + VOICE_FILENAME
-	err = os.WriteFile(soundFilePath, data, 0777)
-	if err != nil {
-		return err
+	
+	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
+	if err := os.WriteFile(soundFilePath, data, 0644); err != nil {
+		return fmt.Errorf("failed to write audio file: %w", err)
 	}
+	
 	return nil
 }
 
 func playAudioFile() error {
-	// USB キャプチャデバイス (card 1) から音声を出力する
-	cmd := exec.Command("aplay", "-D", "plughw:1,0", STORAGE_PATH + "/" + VOICE_FILENAME)
-	err := cmd.Run()
-	if err != nil {
-		return err
+	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
+	cmd := exec.Command("aplay", "-D", AUDIO_DEVICE, soundFilePath)
+	
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("failed to play audio file: %w", err)
 	}
+	
 	return nil
 }
 
+func cleanupAudioFile() error {
+	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
+	return os.Remove(soundFilePath)
+}
+
+func ensureStorageDirectory() error {
+	return os.MkdirAll(STORAGE_PATH, 0755)
+}
+
 func configHandler(writer http.ResponseWriter, request *http.Request) {
-	fmt.Println("configHandler called")
+	fmt.Println("Processing config request")
 
 	body, err := io.ReadAll(request.Body)
 	if err != nil {
-		http.Error(writer, fmt.Sprintf("Failed to read request body. Error: %v", err), http.StatusBadRequest)
+		sendErrorResponse(writer, http.StatusBadRequest, fmt.Sprintf("Failed to read request body: %v", err))
 		return
 	}
 	defer request.Body.Close()
 
-	err = os.MkdirAll(STORAGE_PATH, 0777)
-	if err != nil {
-		http.Error(writer, fmt.Sprintf("Failed to create storage directory. Error: %v", err), http.StatusInternalServerError)
+	// Validate JSON format
+	var config Config
+	if err := json.Unmarshal(body, &config); err != nil {
+		sendErrorResponse(writer, http.StatusBadRequest, "Invalid JSON format")
 		return
 	}
 
-	configFilePath := STORAGE_PATH + "/" + CONFIG_FILENAME
-	err = os.WriteFile(configFilePath, body, 0777)
-	if err != nil {
-		http.Error(writer, fmt.Sprintf("Failed to save config file. Error: %v", err), http.StatusInternalServerError)
+	if err := saveConfigFile(body); err != nil {
+		sendErrorResponse(writer, http.StatusInternalServerError, fmt.Sprintf("Failed to save config: %v", err))
 		return
 	}
-	fmt.Println("configHandler completed")
+
+	sendSuccessResponse(writer, "Configuration saved successfully")
+}
+
+func saveConfigFile(data []byte) error {
+	if err := ensureStorageDirectory(); err != nil {
+		return fmt.Errorf("failed to ensure storage directory: %w", err)
+	}
+
+	configFilePath := filepath.Join(STORAGE_PATH, CONFIG_FILENAME)
+	if err := os.WriteFile(configFilePath, data, 0644); err != nil {
+		return fmt.Errorf("failed to write config file: %w", err)
+	}
+
+	return nil
 }
