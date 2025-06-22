@@ -61,7 +61,7 @@ async function fetchSpeakers() {
     return cachedSpeakers
 }
 
-async function onClickSaveButton(event) {
+async function onClickSaveButton() {
     const elemHourList = document.getElementById('hourList')
     const elemSpeakerList = document.getElementById('speakerList')
     const elemStyleList = document.getElementById('styleList')
@@ -86,19 +86,21 @@ async function onClickSaveButton(event) {
             },
             body: JSON.stringify(data)
         })
-        alert("設定を保存しました。")
 
     } catch (error) {
         console.error(error)
     }
 }
 
-async function onClickTestPlayButton(event) {
+async function onClickTestPlayButton() {
     console.log('Processing onClickTestPlayButton')
-    const button = event.target
+    
+    const elemSaveButton = document.getElementById('saveButton')
+    const elemTestPlayButton = document.getElementById('testPlayButton')
 
     try {
-        button.disabled = true
+        elemSaveButton.disabled = true
+        elemTestPlayButton.disabled = true
         const response = await fetch(window.location.origin + ':8080/api/alert')
         
         if (! response.ok) {
@@ -108,7 +110,9 @@ async function onClickTestPlayButton(event) {
         console.error(error)
         alert('エラーが発生しました: ' + error.message)
     } finally {
-        button.disabled = false
+        elemSaveButton.disabled = true
+        elemTestPlayButton.disabled = true
+
         console.log('Finished onClickTestPlayButton')
     }
 }
