@@ -93,5 +93,9 @@ async function onClickSaveButton() {
     }
 }
 
+async function onClickTestPlayButton() {
+    await fetch(window.location.origin + ':8080/api/alert')
+}
+
 assembleHourList()
 assembleSpeakerList()
