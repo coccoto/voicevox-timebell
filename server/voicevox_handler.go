@@ -9,7 +9,7 @@ import (
 func voicevoxSpeakersHandler(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("Processing voicevox speakers request")
 
-	fmt.println(VOICEVOX_API_URL)
+	fmt.Println(VOICEVOX_API_URL)
 	response, err := http.Get(fmt.Sprintf("%s/speakers", VOICEVOX_API_URL))
 	if err != nil {
 		sendErrorResponse(writer, http.StatusInternalServerError, "Failed to fetch speakers from VoiceVox API")
