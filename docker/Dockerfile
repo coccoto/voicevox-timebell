@@ -3,7 +3,7 @@ FROM golang:1.24.4-bookworm
 # OS をアップデートする
 RUN apt update && apt full-upgrade -y && apt autoremove -y && apt clean
 # パッケージをインストールする
-RUN apt install -y alsa-utils cron curl
+RUN apt install -y alsa-utils
 
 # 作業ディレクトリを設定する
 WORKDIR /app
@@ -17,6 +17,8 @@ RUN mkdir -p /app/storage
 
 # プログラムをビルドして実行可能ファイルを生成する
 RUN go build -C /app/server -o /app/dist/app .
+
+COPY ./config/voicevox-timebell-cron /etc/cron.d/voicevox-timebell-cron
 
 # プログラムを実行する
 CMD ["/app/dist/app"]
