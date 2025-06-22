@@ -2,6 +2,14 @@
 
 let cachedSpeakers = null
 
+async function fetchSpeakers() {
+    if (cachedSpeakers === null) {
+        const result = await fetch(window.location.origin + ':8080/api/speakers')
+        cachedSpeakers = await result.json()
+    }
+    return cachedSpeakers
+}
+
 async function assembleHourList() {
     const elemHourList = document.getElementById('hourList')
     
@@ -53,15 +61,18 @@ async function assembleStyleList() {
     }
 }
 
-async function fetchSpeakers() {
-    if (cachedSpeakers === null) {
-        const result = await fetch(window.location.origin + ':8080/api/speakers')
-        cachedSpeakers = await result.json()
-    }
-    return cachedSpeakers
+async function buttonDisabled(isDisabled) {
+    const elemSaveButton = document.getElementById('saveButton')
+    const elemTestPlayButton = document.getElementById('testPlayButton')
+
+    elemSaveButton.disabled = isDisabled
+    elemTestPlayButton.disabled = isDisabled
+
 }
 
-async function saveConfig() {
+// User interaction handlers
+
+async function onClickSaveButton() {
     const elemHourList = document.getElementById('hourList')
     const elemSpeakerList = document.getElementById('speakerList')
     const elemStyleList = document.getElementById('styleList')
@@ -96,10 +107,12 @@ async function saveConfig() {
     }
 }
 
-async function testPlay() {
+async function onClickTestPlayButton() {
+    const elemSaveButton = document.getElementById('saveButton')
+    elemSaveButton.click()
+
     try {
         buttonDisabled(true)
-        await saveConfig()
         const response = await fetch(window.location.origin + ':8080/api/alert')
         
         if (! response.ok) {
@@ -113,23 +126,26 @@ async function testPlay() {
     }
 }
 
-async function buttonDisabled(isDisabled) {
-    const elemSaveButton = document.getElementById('saveButton')
-    const elemTestPlayButton = document.getElementById('testPlayButton')
-
-    elemSaveButton.disabled = isDisabled
-    elemTestPlayButton.disabled = isDisabled
-
-}
-
-function checkedHourList(isChecked) {
+function onClickCheckedButton() {
     const elemHourList = document.getElementById('hourList')
     const checkboxList = elemHourList.querySelectorAll('input[type="checkbox"]')
     for (const checkbox of checkboxList) {
-        checkbox.checked = isChecked
+        checkbox.checked = true
     }
 }
 
 
-assembleHourList()
-assembleSpeakerList()
+function onClickUncheckedButton() {
+    const elemHourList = document.getElementById('hourList')
+    const checkboxList = elemHourList.querySelectorAll('input[type="checkbox"]')
+    for (const checkbox of checkboxList) {
+        checkbox.checked = false
+    }
+}
+
+// init
+
+window.addEventListener('DOMContentLoaded', function() {
+    assembleHourList()
+    assembleSpeakerList()
+})
