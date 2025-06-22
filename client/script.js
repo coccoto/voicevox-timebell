@@ -110,8 +110,8 @@ async function onClickTestPlayButton() {
         console.error(error)
         alert('エラーが発生しました: ' + error.message)
     } finally {
-        elemSaveButton.disabled = true
-        elemTestPlayButton.disabled = true
+        elemSaveButton.disabled = false
+        elemTestPlayButton.disabled = false
 
         console.log('Finished onClickTestPlayButton')
     }
