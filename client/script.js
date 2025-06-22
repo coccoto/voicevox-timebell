@@ -52,12 +52,13 @@ async function assembleSpeakerList() {
         elemSpeakerList.appendChild(elemOption)
 
         if (config && config.speakerUuid && config.speakerUuid === speaker.speaker_uuid) {
-            elemSpeakerList.value = speaker.speaker_uuid
+            elemSpeakerList.value = config.speakerUuid
         }
     }
 }
 
 async function assembleStyleList() {
+    const config = await fetchConfig()
     const speakers = await fetchSpeakers()
     const elemSpeakerList = document.getElementById('speakerList')
     const elemStyleList = document.getElementById('styleList')
@@ -76,6 +77,10 @@ async function assembleStyleList() {
         elemOption.textContent = styles.name
 
         elemStyleList.appendChild(elemOption)
+
+        if (config && config.styleId && config.styleId === styles.id) {
+            elemStyleList.value = config.styleId
+        }
     }
 }
 
@@ -167,4 +172,5 @@ function onClickUncheckedButton() {
 window.addEventListener('DOMContentLoaded', function() {
     assembleHourList()
     assembleSpeakerList()
+    assembleStyleList()
 })
