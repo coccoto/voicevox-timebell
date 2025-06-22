@@ -1,11 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"path/filepath"
-	"encoding/json"
 )
 
 func configRegisterHandler(writer http.ResponseWriter, request *http.Request) {
@@ -28,8 +29,16 @@ func configRegisterHandler(writer http.ResponseWriter, request *http.Request) {
 func configReadHandler(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("Processing configReadHandler")
 
+	configPath := filepath.Join(STORAGE_PATH, CONFIG_FILENAME)
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusOK)
+		json.NewEncoder(writer).Encode(Config{})
+		return
+	}
+
 	var config Config
-	if err := readJsonFile(filepath.Join(STORAGE_PATH, CONFIG_FILENAME), &config); err != nil {
+	if err := readJsonFile(configPath, &config); err != nil {
 		sendErrorResponse(writer, http.StatusInternalServerError, fmt.Sprintf("Failed to read config: %v", err))
 		return
 	}
