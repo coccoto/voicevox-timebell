@@ -40,6 +40,7 @@ async function assembleHourList() {
 }
 
 async function assembleSpeakerList() {
+    const config = await fetchConfig()
     const speakers = await fetchSpeakers()
     const elemSpeakerList = document.getElementById('speakerList')
     
