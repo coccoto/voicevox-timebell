@@ -1,6 +1,7 @@
 'use strict'
 
 let cachedSpeakers = null
+let cachedConfig = null
 
 async function fetchSpeakers() {
     if (cachedSpeakers === null) {
@@ -10,13 +11,25 @@ async function fetchSpeakers() {
     return cachedSpeakers
 }
 
+async function fetchConfig() {
+    if (cachedConfig === null) {
+        const result = await fetch(window.location.origin + ':8080/api/config-read')
+        cachedConfig = await result.json()
+    }
+    return cachedConfig
+}
+
 async function assembleHourList() {
+    const config = await fetchConfig()
     const elemHourList = document.getElementById('hourList')
     
     Array.from({length: 24}, (_, i) => i).forEach(i => {
         const elemInput = document.createElement('input')
         elemInput.type = 'checkbox'
         elemInput.value = i
+        if (config.hourList.includes(i.toString())) {
+            elemInput.checked = true
+        }
 
         const elemLabel = document.createElement('label')
         elemLabel.textContent = i + "時"
