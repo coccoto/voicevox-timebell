@@ -27,7 +27,7 @@ async function assembleHourList() {
         const elemInput = document.createElement('input')
         elemInput.type = 'checkbox'
         elemInput.value = i
-        if (config.hourList.includes(i.toString())) {
+        if (config && config.hourList && config.hourList.includes(i.toString())) {
             elemInput.checked = true
         }
 
