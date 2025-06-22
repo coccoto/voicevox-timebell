@@ -62,6 +62,7 @@ async function assembleStyleList() {
     const speakers = await fetchSpeakers()
     const elemSpeakerList = document.getElementById('speakerList')
     const elemStyleList = document.getElementById('styleList')
+
     // スタイルリストを初期化する
     elemStyleList.innerHTML = ''
 
@@ -71,14 +72,14 @@ async function assembleStyleList() {
         return
     }
     const matchedSpeaker = speakers.find(speaker => speaker.speaker_uuid === selectedSpeakerUuid)    
-    for (const styles of matchedSpeaker.styles) {
+    for (const style of matchedSpeaker.styles) {
         const elemOption = document.createElement('option')
-        elemOption.value = styles.id
-        elemOption.textContent = styles.name
+        elemOption.value = style.id
+        elemOption.textContent = style.name
 
         elemStyleList.appendChild(elemOption)
 
-        if (config && config.styleId && config.styleId === styles.id) {
+        if (config && config.styleId && config.styleId === style.id) {
             elemStyleList.value = config.styleId
         }
     }
