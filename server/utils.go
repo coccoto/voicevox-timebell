@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	VOICEVOX_API_URL = "http://192.168.11.60:50021"
 	STORAGE_PATH = "/app/storage"
 	CONFIG_FILENAME = "config.json"
 )
