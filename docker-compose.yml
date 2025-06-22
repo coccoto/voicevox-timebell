@@ -20,8 +20,8 @@ services:
     container_name: voicevox-timebell
     ports:
       - "8080:8080"
-    #devices:
-    #  - "/dev/snd:/dev/snd"
+    devices:
+      - "/dev/snd:/dev/snd"
     environment:
       - TZ=Asia/Tokyo
     depends_on:
