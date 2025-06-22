@@ -61,16 +61,27 @@ async function assembleStyleList() {
     }
 }
 
+async function checkedAllHourList(isChecked) {
+    const elemHourList = document.getElementById('hourList')
+    const checkboxList = elemHourList.querySelectorAll('input[type="checkbox"]')
+    for (const checkbox of checkboxList) {
+        checkbox.checked = isChecked
+    }
+}
+
 async function buttonDisabled(isDisabled) {
     const elemSaveButton = document.getElementById('saveButton')
     const elemTestPlayButton = document.getElementById('testPlayButton')
 
     elemSaveButton.disabled = isDisabled
     elemTestPlayButton.disabled = isDisabled
-
 }
 
 // User interaction handlers
+
+async function onChangeSpeakerList() {
+    assembleStyleList() 
+}
 
 async function onClickSaveButton() {
     const elemHourList = document.getElementById('hourList')
@@ -127,20 +138,11 @@ async function onClickTestPlayButton() {
 }
 
 function onClickCheckedButton() {
-    const elemHourList = document.getElementById('hourList')
-    const checkboxList = elemHourList.querySelectorAll('input[type="checkbox"]')
-    for (const checkbox of checkboxList) {
-        checkbox.checked = true
-    }
+    checkedAllHourList(true)
 }
 
-
 function onClickUncheckedButton() {
-    const elemHourList = document.getElementById('hourList')
-    const checkboxList = elemHourList.querySelectorAll('input[type="checkbox"]')
-    for (const checkbox of checkboxList) {
-        checkbox.checked = false
-    }
+    checkedAllHourList(false)
 }
 
 // init
