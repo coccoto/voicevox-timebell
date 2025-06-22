@@ -21,5 +21,5 @@ func configHandler(writer http.ResponseWriter, request *http.Request) {
 		sendErrorResponse(writer, http.StatusInternalServerError, fmt.Sprintf("Failed to save config: %v", err))
 		return
 	}
-	sendSuccessResponse(writer, "Completed configHandler")
+	sendSuccessResponse(writer, "Finished configHandler")
 }

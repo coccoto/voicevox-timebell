@@ -93,8 +93,24 @@ async function onClickSaveButton() {
     }
 }
 
-async function onClickTestPlayButton() {
-    await fetch(window.location.origin + ':8080/api/alert')
+async function onClickTestPlayButton(event) {
+    console.log('Processing onClickTestPlayButton')
+    const button = event.target
+
+    try {
+        button.disabled = true
+        const response = await fetch(window.location.origin + ':8080/api/alert')
+        
+        if (! response.ok) {
+            throw new Error('リクエストに失敗しました')
+        }
+    } catch (error) {
+        console.error(error)
+        alert('エラーが発生しました: ' + error.message)
+    } finally {
+        button.disabled = false
+        console.log('Finished onClickTestPlayButton')
+    }
 }
 
 assembleHourList()

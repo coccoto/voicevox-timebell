@@ -20,7 +20,7 @@ func alertHandler(writer http.ResponseWriter, request *http.Request) {
 		sendErrorResponse(writer, http.StatusInternalServerError, fmt.Sprintf("Failed to process alert: %v", err))
 		return
 	}
-	sendSuccessResponse(writer, "Completed alertHandler")
+	sendSuccessResponse(writer, "Finished alertHandler")
 }
 
 func processAlert() error {
