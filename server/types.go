@@ -2,6 +2,7 @@ package main
 
 type Config struct {
 	HourList []string `json:"hourList"`
+	SpeakerUuid string `json:"speakerUuid"`
 	StyleID string `json:"styleId"`
 }
 
