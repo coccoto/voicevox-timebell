@@ -18,6 +18,7 @@ func main() {
 func setupRoutes() {
 	http.HandleFunc("/api/alert", corsMiddleware(alertHandler))
 	http.HandleFunc("/api/config", corsMiddleware(configHandler))
+	http.HandleFunc("/api/speakers", corsMiddleware(voicevoxSpeakersHandler))
 }
 
 func listen() {

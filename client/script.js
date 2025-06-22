@@ -55,7 +55,7 @@ async function assembleStyleList() {
 
 async function fetchSpeakers() {
     if (cachedSpeakers === null) {
-        const result = await fetch('http://192.168.11.60:50021/speakers')
+        const result = await fetch('http://192.168.11.60:8080/api/speakers')
         cachedSpeakers = await result.json()
     }
     return cachedSpeakers
