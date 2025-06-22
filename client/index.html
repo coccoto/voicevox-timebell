@@ -5,29 +5,31 @@
         <link rel='stylesheet' href='style.css'>
     </head>
     <body>
-        <div>
+        <div class='container'>
             <h1>VOICEVOX 時報アプリ 設定画面</h1>
-            <div>
-                <h2>通知する時間</h2>
+            <div class='config-container'>
                 <div>
-                    <button onclick="onClickCheckedButton()">全て選択</button>
-                    <button onclick="onClickUncheckedButton()">全て解除</button>
+                    <h2>通知する時間</h2>
+                    <div>
+                        <button onclick="onClickCheckedButton()">全て選択</button>
+                        <button onclick="onClickUncheckedButton()">全て解除</button>
+                    </div>
+                    <div id='hourList'></div>
                 </div>
-                <div id='hourList'></div>
-            </div>
-            <div>
-                <h2>キャラクター選択</h2>
-                <select id='speakerList' onchange='assembleStyleList()'>
-                    <option value=''></option>
-                </select>
-            </div>
-            <div>
-                <h2>音声スタイル</h2>
-                <select id='styleList'></select>
-            </div>
-            <div>
-                <button id='registerButton' onclick='onClickRegisterButton(this)'>保存</button>
-                <button id='testPlayButton' onclick='onClickTestPlayButton(this)'>テスト再生</button>
+                <div>
+                    <h2>キャラクター選択</h2>
+                    <select id='speakerList' onchange='assembleStyleList()'>
+                        <option value=''></option>
+                    </select>
+                </div>
+                <div>
+                    <h2>音声スタイル</h2>
+                    <select id='styleList'></select>
+                </div>
+                <div>
+                    <button id='registerButton' onclick='onClickRegisterButton(this)'>保存</button>
+                    <button id='testPlayButton' onclick='onClickTestPlayButton(this)'>テスト再生</button>
+                </div>
             </div>
         </div>
         <script src='script.js'></script>
