@@ -11,8 +11,3 @@ COPY ./client /app/client
 RUN mkdir -p /app/storage
 
 RUN go build -C /app/server -o /app/dist/app .
-
-COPY crontab /etc/cron.d/voicevox-timebell-cron
-
-RUN chmod 0644 /etc/cron.d/voicevox-timebell-cron
-RUN crontab /etc/cron.d/voicevox-timebell-cron
