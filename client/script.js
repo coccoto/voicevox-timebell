@@ -49,6 +49,10 @@ async function assembleSpeakerList() {
         elemOption.textContent = speaker.name
 
         elemSpeakerList.appendChild(elemOption)
+
+        if (config && config.speakerUuid && config.speakerUuid === speaker.speaker_uuid) {
+            elemSpeakerList.value = speaker.speaker_uuid
+        }
     }
 }
 
@@ -102,15 +106,17 @@ async function onClickRegisterButton() {
     const elemStyleList = document.getElementById('styleList')
 
     const selectedHourList = Array.from(elemHourList.querySelectorAll('input:checked')).map(input => input.value)
+    const selectedSpeakerUuid = elemSpeakerList.value
     const selectedStyleId = elemStyleList.value
 
-    if (selectedStyleId === '') {
+    if (selectedSpeakerUuid === '' || selectedStyleId === '') {
         alert("音声スタイルを選択してください。")
         return
     }
 
     const data = {
         hourList: selectedHourList,
+        speakerUuid: selectedSpeakerUuid,
         styleId: selectedStyleId,
     }
     try {
