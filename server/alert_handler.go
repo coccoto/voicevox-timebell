@@ -15,7 +15,7 @@ import (
 
 const (
 	VOICE_FILENAME = "voice.wav"
-	VOICEVOX_API_URL = "http://voicevox-engine:50021"
+	VOICEVOX_API_URL = "http://192.168.11.60/:50021"
 	AUDIO_DEVICE = "plughw:1,0"
 )
 
