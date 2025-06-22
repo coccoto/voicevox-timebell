@@ -61,7 +61,7 @@ async function fetchSpeakers() {
     return cachedSpeakers
 }
 
-async function onClickSaveButton() {
+async function saveConfig() {
     const elemHourList = document.getElementById('hourList')
     const elemSpeakerList = document.getElementById('speakerList')
     const elemStyleList = document.getElementById('styleList')
@@ -96,11 +96,10 @@ async function onClickSaveButton() {
     }
 }
 
-async function onClickTestPlayButton() {
-    console.log('Processing onClickTestPlayButton')
-
+async function testPlay() {
     try {
         buttonDisabled(true)
+        saveConfig()
         const response = await fetch(window.location.origin + ':8080/api/alert')
         
         if (! response.ok) {
@@ -111,8 +110,6 @@ async function onClickTestPlayButton() {
         alert('エラーが発生しました: ' + error.message)
     } finally {
         buttonDisabled(false)
-
-        console.log('Finished onClickTestPlayButton')
     }
 }
 
@@ -124,6 +121,15 @@ async function buttonDisabled(isDisabled) {
     elemTestPlayButton.disabled = isDisabled
 
 }
+
+function checkedHourList(isChecked) {
+    const elemHourList = document.getElementById('hourList')
+    const checkboxList = elemHourList.querySelectorAll('input[type="checkbox"]')
+    for (const checkbox of checkboxList) {
+        checkbox.checked = isChecked
+    }
+}
+
 
 assembleHourList()
 assembleSpeakerList()

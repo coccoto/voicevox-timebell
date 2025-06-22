@@ -1,14 +1,18 @@
 <html>
     <head>
         <meta charset='utf-8'>
-        <title>voicevox-timebell</title>
+        <title>VOICEVOX 時報アプリ 設定画面</title>
         <link rel='stylesheet' href='style.css'>
     </head>
     <body>
         <div>
-            <h1>voicevox-timebell</h1>
+            <h1>VOICEVOX 時報アプリ 設定画面</h1>
             <div>
                 <h2>通知する時間</h2>
+                <div>
+                    <button onclick="checkedHourList(true)">全て選択</button>
+                    <button onclick="checkedHourList(false)">全て解除</button>
+                </div>
                 <div id='hourList'></div>
             </div>
             <div>
@@ -22,8 +26,8 @@
                 <select id='styleList'></select>
             </div>
             <div>
-                <button id='saveButton' onclick='onClickSaveButton(this)'>保存</button>
-                <button id='testPlayButton' onclick='onClickTestPlayButton(this)'>テスト再生</button>
+                <button id='saveButton' onclick='saveConfig(this)'>保存</button>
+                <button id='testPlayButton' onclick='testPlay(this)'>テスト再生</button>
             </div>
         </div>
         <script src='script.js'></script>
