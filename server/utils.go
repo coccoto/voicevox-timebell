@@ -2,7 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"os"
 )
 
 const (
@@ -43,4 +45,25 @@ func sendSuccessResponse(writer http.ResponseWriter, message string) {
 		Message: message,
 	}
 	json.NewEncoder(writer).Encode(response)
+}
+
+func createFile(data []byte, filePath string) error {
+	if err := os.WriteFile(filePath, data, 0644); err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+	return nil
+}
+
+func readJsonFile(filePath string, v interface{}) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer file.Close()
+
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(v); err != nil {
+		return fmt.Errorf("failed to decode JSON: %w", err)
+	}
+	return nil
 }

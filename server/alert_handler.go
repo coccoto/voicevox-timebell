@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -29,19 +30,33 @@ func alertHandler(writer http.ResponseWriter, request *http.Request) {
 }
 
 func processAlert() error {
-	speechMessage := getSpeechMessage()
-	
-	audioQuery, err := requestAudioQuery(speechMessage, 1)
+	var config Config
+	if err := readJsonFile(filepath.Join(STORAGE_PATH, CONFIG_FILENAME), &config); err != nil {
+		return fmt.Errorf("failed to read config: %w", err)
+	}
+
+	speechMessage := getSpeechMessage(config.HourList)
+	if speechMessage == "" {
+		fmt.Println("No speechMessage to process")
+		return nil
+	}
+
+	styleID, err := strconv.Atoi(config.StyleID)
+	if err != nil {
+		return fmt.Errorf("invalid styleID: %w", err)
+	}
+
+	audioQuery, err := requestAudioQuery(speechMessage, styleID)
 	if err != nil {
 		return fmt.Errorf("audio query failed: %w", err)
 	}
 
-	audioData, err := requestSynthesis(audioQuery, 1)
+	audioData, err := requestSynthesis(audioQuery, styleID)
 	if err != nil {
 		return fmt.Errorf("synthesis failed: %w", err)
 	}
 
-	if err := saveAudioFile(audioData); err != nil {
+	if err := createFile(audioData, filepath.Join(STORAGE_PATH, VOICE_FILENAME)); err != nil {
 		return fmt.Errorf("save audio failed: %w", err)
 	}
 
@@ -49,15 +64,29 @@ func processAlert() error {
 		return fmt.Errorf("play audio failed: %w", err)
 	}
 
-	if err := cleanupAudioFile(); err != nil {
+	if err := cleanAudioFile(); err != nil {
 		fmt.Println("Warning: cleanup failed:", err)
 	}
 	return nil
 }
 
-func getSpeechMessage() string {
+func getSpeechMessage(hourList []string) string {
 	hour := time.Now().Hour()
-	return fmt.Sprintf("%d時をお知らせします。", hour)
+	for _, hourStr := range hourList {
+		if hourInt, err := strconv.Atoi(hourStr); err == nil && hourInt == hour {
+			return fmt.Sprintf("%d時をお知らせします。", hour)
+		}
+	}
+	return ""
+}
+
+func contains(slice []int, item int) bool {
+	for _, element := range slice {
+		if element == item {
+			return true
+		}
+	}
+	return false
 }
 
 func requestAudioQuery(speechMessage string, speaker int) ([]byte, error) {
@@ -90,14 +119,6 @@ func requestSynthesis(audioQuery []byte, speaker int) ([]byte, error) {
 	return io.ReadAll(response.Body)
 }
 
-func saveAudioFile(data []byte) error {
-	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
-	if err := os.WriteFile(soundFilePath, data, 0644); err != nil {
-		return fmt.Errorf("failed to write audio file: %w", err)
-	}
-	return nil
-}
-
 func playAudioFile() error {
 	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
 	cmd := exec.Command("aplay", "-D", AUDIO_DEVICE, soundFilePath)
@@ -108,10 +129,11 @@ func playAudioFile() error {
 	return nil
 }
 
-func cleanupAudioFile() error {
+func cleanAudioFile() error {
 	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
 	if err := os.Remove(soundFilePath); err != nil {
 		return fmt.Errorf("failed to remove audio file: %w", err)
 	}
 	return nil
 }
+
