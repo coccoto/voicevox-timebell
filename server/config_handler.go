@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"encoding/json"
 )
 
 func configRegisterHandler(writer http.ResponseWriter, request *http.Request) {

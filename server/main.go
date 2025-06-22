@@ -19,6 +19,7 @@ func setupRoutes() {
 	http.HandleFunc("/api/alert", corsMiddleware(alertHandler))
 	http.HandleFunc("/api/config-register", corsMiddleware(configRegisterHandler))
 	http.HandleFunc("/api/config-read", corsMiddleware(configReadHandler))
+	// VoiceVox API
 	http.HandleFunc("/api/speakers", corsMiddleware(voicevoxSpeakersHandler))
 }
 
