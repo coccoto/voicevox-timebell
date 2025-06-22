@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	VOICEVOX_API_URL = "http://0.0.0.0:50021"
+	VOICEVOX_API_URL = "http://voicevox-engine:50021"
 	STORAGE_PATH = "/app/storage"
 	VOICE_FILENAME = "voice.wav"
 	CONFIG_FILENAME = "config.json"
