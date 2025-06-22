@@ -17,3 +17,6 @@ RUN mkdir -p /app/storage
 
 # プログラムをビルドして実行可能ファイルを生成する
 RUN go build -C /app/server -o /app/dist/app .
+
+# プログラムを実行する
+CMD ["/app/dist/app"]
