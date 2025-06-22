@@ -61,7 +61,7 @@ async function fetchSpeakers() {
     return cachedSpeakers
 }
 
-async function onClickSaveButton() {
+async function onClickSaveButton(event) {
     const elemHourList = document.getElementById('hourList')
     const elemSpeakerList = document.getElementById('speakerList')
     const elemStyleList = document.getElementById('styleList')
