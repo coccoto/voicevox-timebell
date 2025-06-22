@@ -119,9 +119,6 @@ async function onClickSaveButton() {
 }
 
 async function onClickTestPlayButton() {
-    const elemSaveButton = document.getElementById('saveButton')
-    elemSaveButton.click()
-
     try {
         buttonDisabled(true)
         const response = await fetch(window.location.origin + ':8080/api/alert')
