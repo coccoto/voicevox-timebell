@@ -79,7 +79,7 @@ async function assembleStyleList() {
 
         elemStyleList.appendChild(elemOption)
 
-        if (config && config.styleId && config.styleId === style.id) {
+        if (config && config.styleId && Number(config.styleId) === style.id) {
             elemStyleList.value = config.styleId
         }
     }
