@@ -13,10 +13,6 @@ import (
 	"time"
 )
 
-const (
-	VOICE_FILENAME = "voice.wav"
-)
-
 func alertHandler(writer http.ResponseWriter, request *http.Request) {
 	fmt.Println("Processing alertHandler")
 

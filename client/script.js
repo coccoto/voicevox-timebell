@@ -95,3 +95,5 @@ async function onClickSaveButton() {
 
 assembleHourList()
 assembleSpeakerList()
+
+console.log(window.location.origin)
