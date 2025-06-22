@@ -70,10 +70,10 @@ async function checkedAllHourList(isChecked) {
 }
 
 async function buttonDisabled(isDisabled) {
-    const elemSaveButton = document.getElementById('saveButton')
+    const elemRegisterButton = document.getElementById('registerButton')
     const elemTestPlayButton = document.getElementById('testPlayButton')
 
-    elemSaveButton.disabled = isDisabled
+    elemRegisterButton.disabled = isDisabled
     elemTestPlayButton.disabled = isDisabled
 }
 
@@ -83,7 +83,7 @@ async function onChangeSpeakerList() {
     assembleStyleList() 
 }
 
-async function onClickSaveButton() {
+async function onClickRegisterButton() {
     const elemHourList = document.getElementById('hourList')
     const elemSpeakerList = document.getElementById('speakerList')
     const elemStyleList = document.getElementById('styleList')
@@ -103,7 +103,7 @@ async function onClickSaveButton() {
     try {
         buttonDisabled(true)
 
-        const response = await fetch(window.location.origin + ':8080/api/config', {
+        const response = await fetch(window.location.origin + ':8080/api/config-register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
