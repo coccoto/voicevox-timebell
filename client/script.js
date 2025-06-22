@@ -27,6 +27,8 @@ async function assembleHourList() {
         const elemInput = document.createElement('input')
         elemInput.type = 'checkbox'
         elemInput.value = i
+
+        // config に保存された値を読み込む
         if (config && config.hourList && config.hourList.includes(i.toString())) {
             elemInput.checked = true
         }
@@ -51,6 +53,7 @@ async function assembleSpeakerList() {
 
         elemSpeakerList.appendChild(elemOption)
 
+        // config に保存された値を読み込む
         if (config && config.speakerUuid && config.speakerUuid === speaker.speaker_uuid) {
             elemSpeakerList.value = config.speakerUuid
         }
@@ -79,6 +82,7 @@ async function assembleStyleList() {
 
         elemStyleList.appendChild(elemOption)
 
+        // config に保存された値を読み込む
         if (config && config.styleId && Number(config.styleId) === style.id) {
             elemStyleList.value = config.styleId
         }
@@ -96,7 +100,6 @@ async function checkedAllHourList(isChecked) {
 async function buttonDisabled(isDisabled) {
     const elemRegisterButton = document.getElementById('registerButton')
     const elemTestPlayButton = document.getElementById('testPlayButton')
-
     elemRegisterButton.disabled = isDisabled
     elemTestPlayButton.disabled = isDisabled
 }
