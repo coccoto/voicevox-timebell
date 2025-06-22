@@ -13,11 +13,11 @@ services:
     ports:
       - "50021:50021"
 
-  voicevox-timebell:
+  golang:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    container_name: voicevox-timebell
+    container_name: golang
     ports:
       - "8080:8080"
     devices:
@@ -26,4 +26,3 @@ services:
       - TZ=Asia/Tokyo
     depends_on:
       - voicevox-engine
-      

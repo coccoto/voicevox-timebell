@@ -1,24 +1,26 @@
 FROM golang:1.24.4-bookworm
 
-# OS をアップデートする
+# OS をセットアップする
 RUN apt update && apt full-upgrade -y && apt autoremove -y && apt clean
-# パッケージをインストールする
-RUN apt install -y alsa-utils
+RUN apt install -y alsa-utils cron
 
-# 作業ディレクトリを設定する
 WORKDIR /app
 
-# プログラムをコンテナにコピーする
+# コンテナにファイルをコピーする
+COPY ./docker/start.sh /app/start.sh
+COPY ./docker/crontab /etc/cron.d/voicevox-timebell-cron
 COPY ./server /app/server
 COPY ./client /app/client
 
-# ストレージディレクトリを作成する
-RUN mkdir -p /app/storage
+# cron を登録する
+RUN chmod 0644 /etc/cron.d/voicevox-timebell-cron
+RUN crontab /etc/cron.d/voicevox-timebell-cron
 
-# プログラムをビルドして実行可能ファイルを生成する
+# Go プロジェクトをセットアップする
+RUN mkdir -p /app/storage
 RUN go build -C /app/server -o /app/dist/app .
 
-COPY ./config/voicevox-timebell-cron /etc/cron.d/voicevox-timebell-cron
+# start.sh の権限を設定する
+RUN chmod 744 /app/start.sh
 
-# プログラムを実行する
-CMD ["/app/dist/app"]
+CMD ["/app/start.sh"]
