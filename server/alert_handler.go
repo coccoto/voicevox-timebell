@@ -15,7 +15,6 @@ import (
 
 const (
 	VOICE_FILENAME = "voice.wav"
-	AUDIO_DEVICE = "plughw:1,0"
 )
 
 func alertHandler(writer http.ResponseWriter, request *http.Request) {
@@ -120,7 +119,7 @@ func requestSynthesis(audioQuery []byte, speaker int) ([]byte, error) {
 
 func playAudioFile() error {
 	soundFilePath := filepath.Join(STORAGE_PATH, VOICE_FILENAME)
-	cmd := exec.Command("aplay", "-D", AUDIO_DEVICE, soundFilePath)
+	cmd := exec.Command("aplay", "-D", "plughw:1,0", soundFilePath)
 	
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to play audio file: %w", err)
