@@ -79,6 +79,8 @@ async function onClickSaveButton() {
         styleId: selectedStyleId,
     }
     try {
+        buttonDisabled(true)
+
         const response = await fetch(window.location.origin + ':8080/api/config', {
             method: 'POST',
             headers: {
@@ -89,18 +91,16 @@ async function onClickSaveButton() {
 
     } catch (error) {
         console.error(error)
+    } finally {
+        buttonDisabled(false)
     }
 }
 
 async function onClickTestPlayButton() {
     console.log('Processing onClickTestPlayButton')
-    
-    const elemSaveButton = document.getElementById('saveButton')
-    const elemTestPlayButton = document.getElementById('testPlayButton')
 
     try {
-        elemSaveButton.disabled = true
-        elemTestPlayButton.disabled = true
+        buttonDisabled(true)
         const response = await fetch(window.location.origin + ':8080/api/alert')
         
         if (! response.ok) {
@@ -110,11 +110,19 @@ async function onClickTestPlayButton() {
         console.error(error)
         alert('エラーが発生しました: ' + error.message)
     } finally {
-        elemSaveButton.disabled = false
-        elemTestPlayButton.disabled = false
+        buttonDisabled(false)
 
         console.log('Finished onClickTestPlayButton')
     }
+}
+
+async function buttonDisabled(isDisabled) {
+    const elemSaveButton = document.getElementById('saveButton')
+    const elemTestPlayButton = document.getElementById('testPlayButton')
+
+    elemSaveButton.disabled = isDisabled
+    elemTestPlayButton.disabled = isDisabled
+
 }
 
 assembleHourList()
