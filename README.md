@@ -16,8 +16,7 @@
     - 音声スタイル
 3. 「テスト再生」ボタンを押下して、正常に音声が再生されることを確認する。
 
-## 音量調整
-- amixer sset 'Master' {volume}%
+これで準備完了です。設定内容に応じて、自動で時間をお知らせします。
 
 ## API エンドポイント一覧
 
@@ -27,3 +26,6 @@
 | GET | `/api/config-read` | 設定を取得する。 |
 | POST | `/api/config-register` | 設定を更新する。 |
 | GET | `/api/speakers` | 利用可能な VOICEVOX のキャラクター一覧を取得する。 |
+
+## 音量調整
+- amixer sset 'Master' {volume}%
