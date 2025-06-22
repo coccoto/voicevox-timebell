@@ -55,7 +55,7 @@ async function assembleStyleList() {
 
 async function fetchSpeakers() {
     if (cachedSpeakers === null) {
-        const result = await fetch('http://192.168.11.60:8080/api/speakers')
+        const result = await fetch(window.location.origin + ':8080/api/speakers')
         cachedSpeakers = await result.json()
     }
     return cachedSpeakers
@@ -79,7 +79,7 @@ async function onClickSaveButton() {
         styleId: selectedStyleId,
     }
     try {
-        const response = await fetch('http://192.168.11.60:8080/api/config', {
+        const response = await fetch(window.location.origin + ':8080/api/config', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -95,5 +95,3 @@ async function onClickSaveButton() {
 
 assembleHourList()
 assembleSpeakerList()
-
-console.log(window.location.origin)
