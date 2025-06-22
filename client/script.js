@@ -55,7 +55,7 @@ async function assembleStyleList() {
 
 async function fetchSpeakers() {
     if (cachedSpeakers === null) {
-        const result = await fetch('http://localhost:50021/speakers')
+        const result = await fetch('http://192.168.11.60:50021/speakers')
         cachedSpeakers = await result.json()
     }
     return cachedSpeakers
@@ -79,7 +79,7 @@ async function onClickSaveButton() {
         styleId: selectedStyleId,
     }
     try {
-        const response = await fetch('http://localhost:8080/api/config', {
+        const response = await fetch('http://192.168.11.60:8080/api/config', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
