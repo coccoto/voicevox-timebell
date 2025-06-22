@@ -99,7 +99,7 @@ async function saveConfig() {
 async function testPlay() {
     try {
         buttonDisabled(true)
-        saveConfig()
+        await saveConfig()
         const response = await fetch(window.location.origin + ':8080/api/alert')
         
         if (! response.ok) {
