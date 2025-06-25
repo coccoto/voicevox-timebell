@@ -68,7 +68,7 @@ func getSpeechMessage(hourList []string) string {
 	hour := time.Now().Hour()
 	for _, hourStr := range hourList {
 		if hourInt, err := strconv.Atoi(hourStr); err == nil && hourInt == hour {
-			return fmt.Sprintf("%d時をお知らせします。", hour)
+			return fmt.Sprintf("%d時になりました。", hour)
 		}
 	}
 	return ""
